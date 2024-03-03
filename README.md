@@ -1,13 +1,13 @@
 # **MongoDB Querying and Aggregation Project**
 
 
-In this project, I will not be doing any major CRUD operation as I will use mongimport to create the database, collection, and to import the documents which are in JSON format.
+In this project, I will not be doing any major CRUD operation as I will use mongimport to create the database, collection, and import the documents which are in JSON format.
 
 > [!NOTE] 
 > I will be using the mongo shell (mongosh) to carry out all the operations and not Mongo Atlas or any other third-party application.
 
 
-First, we need to login to the mongoDB server using 'mongosh' command and check our existing databases to ensure I'm not just working with a pre-existing database.
+First, we need to log in to the mongoDB server using 'mongosh' command and check our existing databases to ensure I'm not just working with a pre-existing database.
 
 ![1  checking existing databases](https://github.com/ahmadalege/mongodb/assets/131969880/3fb3509f-d517-43eb-805d-3dc115be4662)
 
@@ -33,7 +33,7 @@ The above commands do three things:
 
 ![2  import and check collections](https://github.com/ahmadalege/mongodb/assets/131969880/81ff40eb-d285-48d8-83b9-46bf637de13b)
 
-After logging back into the mongoDB server, we can see that we now have five databases with newdb now present and the collections as well.
+After logging back into the mongoDB server, we can see that we now have five databases with newdb present and the collections as well.
 now to get into querying.
 To get an idea of the fields and content of the documents, we query only the first documents in both collections using:
  ```
@@ -54,7 +54,7 @@ In the restaurant collection, we have the following fields:
 * rating
 * type of food
   
-And in the books collection, we have:
+In the books collection, we have:
 * _id
 * title
 * isbn
@@ -75,7 +75,7 @@ db.restaurant.find({$rating:{$gt:5}});
 ![4  find restaurants with rating gt 5](https://github.com/ahmadalege/mongodb/assets/131969880/b81d4d22-3604-4455-88ff-e8bc685d46ae)
 
 
->To get restaurants serving Pizza, Kebab, and Afhgan dishes
+>To get restaurants serving Pizza, Kebab, and Afghan dishes
  ```
 db.restaurant.find({$type_of_food:{$in: ['Pizza', 'Kebab', 'Afghan']}})
 ```
@@ -89,7 +89,7 @@ db.restaurant.find({$and:[{$type_of_food:'Kebab'},{$rating:{$gt:5.5}}]})
 ![6  $and operator](https://github.com/ahmadalege/mongodb/assets/131969880/88ea85d2-3dda-4bc5-89a5-499d61512167)
 
 
-All the querying we've done have been with the find command, now we want to into aggregations such as Match, Group, Project, Count and Sort.
+All the querying we've done has been with the find command, now we want to into aggregations such as Match, Group, Project, Count, and Sort.
 
 # $Match is used to filter like find but it is an aggregation operation.
 >To find a book titled 'MongoDB in Action'
@@ -124,9 +124,9 @@ db.restaurant.aggregate([{$count:"total_count"}])
 ```
 ![8  count total documents](https://github.com/ahmadalege/mongodb/assets/131969880/87b6214b-ccb3-48c2-a654-6fadd562452d)
 
-We can see have 431 documents in books and 2548 documents in the restaurant collection.
+We can see 431 documents in books and 2548 documents in the restaurant collection.
 
-# $group is used just as in SQL, it is used to group documents, and then other operations can be performed on the groups. Let's see a basic grouping operation:
+# $group is used just as in SQL, it is used to group documents, and other operations can be performed on the groups. Let's see a basic grouping operation:
 
 >To see the books categories and food types in the restaurants
  ```
@@ -176,3 +176,23 @@ Then we adjusted the filter conditions and only searched for restaurants with a 
 * Thai: 1
 * Pizza: 13
 
+# $For our final aggregation, we will use the $out function, it assigns the result of an aggregation to a new collection.
+
+>To group by food type, finding the average rating and passing the resulting output to a new collection named newColl
+
+```
+db.restaurant.aggregate([{$group:{_id:"$type_of_food", avgRating:{$avg:"$rating"}}}, {$out:"newColl"}])
+```
+![last](https://github.com/ahmadalege/mongodb/assets/131969880/134c99f0-e56b-4212-a712-40877c25e8e6)
+The above image shows that we have a new collection named newColl and we can see the documents in the collection as well.
+
+>Finally, we will use mongoexport to export the new collection as a JSON file and save it to our local storage.
+```
+mongoexport --collection newColl --db newdb newColl.json
+```
+
+![mongoexport last last](https://github.com/ahmadalege/mongodb/assets/131969880/e79b92da-28f9-47f3-aa43-73a5579b3f3b)
+
+From the above image, we can confirm that the new collection has been saved to the file newColl.json and exported.
+
+### That concludes this project, thanks for coming this far and I hope you learned a thing or two or you are convinced of my proficiency in NoSQL databases.
